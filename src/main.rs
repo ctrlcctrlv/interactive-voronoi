@@ -109,7 +109,12 @@ fn event_loop(settings: &Settings) {
                 if vor_pts.len() > 0 {
                     let vor_diagram = voronoi(vor_pts, DEFAULT_WINDOW_WIDTH as f64);
                     let vor_polys = make_polygons(&vor_diagram);
+                    
                     for (i, poly) in vor_polys.iter().enumerate() {
+                        if colors.len()-1 < i {
+                            colors.push(random_color());
+                        }
+
                         if settings.lines_only {
                             draw_lines_in_polygon(poly, &c, g);
                         } else {
