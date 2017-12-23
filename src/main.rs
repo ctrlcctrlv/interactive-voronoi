@@ -48,6 +48,15 @@ fn main() {
 
 }
 
+fn should_add_dot(dot: &[f64;2], dots: &Vec<[f64;2]>) -> bool {
+    for &d in dots {
+        if dot[0] - d[0] < 0.02 && dot[1] - d[1] < 0.02 {
+            return false
+        }
+    }
+    true
+}
+
 fn random_point() -> [f64; 2] {
     [rand::thread_rng().gen_range(0., DEFAULT_WINDOW_HEIGHT as f64), rand::thread_rng().gen_range(0., DEFAULT_WINDOW_WIDTH as f64)]
 }
@@ -89,8 +98,11 @@ fn event_loop(settings: &Settings) {
                     if key == piston::input::keyboard::Key::R { random_voronoi(&mut dots, &mut colors, settings.random_count); }
                 }
                 Button::Mouse(_) => {
-                    dots.push([mx, my]);
-                    colors.push(random_color());
+                    let dot = [mx, my];
+                    if should_add_dot(&dot, &dots) {
+                        dots.push(dot);
+                        colors.push(random_color());
+                    }
                 },
                 _ => ()
             }
