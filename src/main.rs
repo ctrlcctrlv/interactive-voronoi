@@ -48,9 +48,11 @@ fn main() {
 
 }
 
-fn should_add_dot(dot: &[f64;2], dots: &Vec<[f64;2]>) -> bool {
+fn no_dot_there_yet(dot: &[f64;2], dots: &Vec<[f64;2]>) -> bool {
+    let epsilon = 0.001;
     for &d in dots {
-        if dot[0] - d[0] < 0.02 && dot[1] - d[1] < 0.02 {
+        if (dot[0] - d[0]).abs() < epsilon && (dot[1] - d[1]).abs() < epsilon {
+            // println!("Point already there, did not add ({}, {})", dot[0], dot[1]);
             return false
         }
     }
@@ -99,7 +101,8 @@ fn event_loop(settings: &Settings) {
                 }
                 Button::Mouse(_) => {
                     let dot = [mx, my];
-                    if should_add_dot(&dot, &dots) {
+                    // Two points at the same place lead to a problem in rust_voronoi
+                    if no_dot_there_yet(&dot, &dots) {
                         dots.push(dot);
                         colors.push(random_color());
                     }
