@@ -119,6 +119,7 @@ fn event_loop(settings: &Settings) {
                     vor_pts.push(Point::new(d[0], d[1]));
                 }
                 if vor_pts.len() > 0 {
+                    bug_avoidance(&mut vor_pts);
                     let vor_diagram = voronoi(vor_pts, DEFAULT_WINDOW_WIDTH as f64);
                     let vor_polys = make_polygons(&vor_diagram);
                     
@@ -194,4 +195,28 @@ fn draw_ellipse<G: Graphics>(
         c.transform,
         g
     );
+}
+
+// This avoids an unhandled degeneracy (bug #4 of rust_voronoi)
+// Two dots on same y-height and higher than all other dots
+fn bug_avoidance(dots: &mut Vec<voronoi::Point>) {
+    // Sort the dots according to their y-coordinates
+    dots.sort_unstable_by_key(|p| p.y);
+
+    if dots.len() >= 2 {
+        // Last two points are the ones with the highest y-coordinates
+        let last = dots.len() - 1;
+        let secondlast = dots.len() - 2;
+
+        let epsilon = 0.001;
+        // read highest two points. if y height is same, then move one a bit higher.
+        let biggest = dots[last].y.into_inner();
+        let maybe_also_biggest = dots[secondlast].y.into_inner();
+        if (biggest - maybe_also_biggest) < epsilon {
+            dots[last].y = (biggest + epsilon).into();
+            // print!("The two biggest y-coordinates ({} and {}) ", biggest, maybe_also_biggest);
+            // println!("are the same. Cheating a bit! -> ({} and {})", biggest + epsilon,
+            // maybe_also_biggest);
+        }
+    }
 }
