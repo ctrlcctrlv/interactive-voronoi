@@ -2,8 +2,6 @@ extern crate piston;
 extern crate opengl_graphics;
 extern crate graphics;
 extern crate touch_visualizer;
-
-#[cfg(feature = "include_sdl2")]
 extern crate sdl2_window;
 
 extern crate getopts;
@@ -16,7 +14,6 @@ use graphics::{ Context, Graphics };
 use piston::window::{ Window, WindowSettings };
 use piston::input::*;
 use piston::event_loop::*;
-#[cfg(feature = "include_sdl2")]
 use sdl2_window::Sdl2Window as AppWindow;
 use voronoi::{voronoi, Point, make_polygons};
 use rand::Rng;
@@ -60,7 +57,7 @@ fn no_dot_there_yet(dot: &[f64;2], dots: &Vec<[f64;2]>) -> bool {
 }
 
 fn random_point() -> [f64; 2] {
-    [rand::thread_rng().gen_range(0., DEFAULT_WINDOW_HEIGHT as f64), rand::thread_rng().gen_range(0., DEFAULT_WINDOW_WIDTH as f64)]
+    [rand::thread_rng().gen_range(0f64 .. DEFAULT_WINDOW_HEIGHT as f64), rand::thread_rng().gen_range(0f64 .. DEFAULT_WINDOW_WIDTH as f64)]
 }
 
 fn random_color() -> [f32; 4] {
@@ -80,7 +77,7 @@ fn random_voronoi(dots: &mut Vec<[f64;2]>, colors: &mut Vec<[f32;4]>, num: usize
 fn event_loop(settings: &Settings) {
     let opengl = OpenGL::V3_2;
     let mut window: AppWindow = WindowSettings::new("Interactive Voronoi", [DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH])
-        .exit_on_esc(true).opengl(opengl).build().unwrap();
+        .exit_on_esc(true).graphics_api(opengl).build().unwrap();
 
     let ref mut gl = GlGraphics::new(opengl);
     let mut touch_visualizer = TouchVisualizer::new();
@@ -110,7 +107,7 @@ fn event_loop(settings: &Settings) {
                 _ => ()
             }
         };
-        e.mouse_cursor(|x, y| {
+        e.mouse_cursor(|[x, y]| {
             mx = x;
             my = y;
         });
